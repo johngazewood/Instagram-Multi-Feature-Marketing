@@ -1,5 +1,6 @@
 import time
 import json
+import logging
 #from selenium import webdriver
 import undetected_chromedriver as uc
 from selenium.webdriver.chrome.service import Service
@@ -45,10 +46,12 @@ class InstagramBot:
         time.sleep(8)
         # Wait for the posts to load
         wait = WebDriverWait(self.driver, 10)
-        # wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="mount_0_0_GQ"]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/main/article/div[2]/div')))
-        most_recent = self.driver.find_element(By.XPATH, '//div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/main/article/div[2]/div')
+        # most_recent = self.driver.find_element(By.XPATH, '//div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/main/article/div[2]/div')
+        main_element = self.driver.find_element(By.TAG_NAME, 'main')
+        article_element = main_element.find_element(By.TAG_NAME, 'article')
+        
         # Scrape the most recent posts from the hashtag
-        posts = most_recent.find_elements(By.TAG_NAME, "a")
+        posts = article_element.find_elements(By.TAG_NAME, "a")
 
         links = []
         for post in posts:
@@ -148,6 +151,38 @@ class InstagramBot:
 
             time.sleep(delay_time)
         
+        self.driver.quit()
+
+    def ignore_save_your_login_info(self):
+        buttons = self.driver.find_elements(By.XPATH, "//div[@role='button']")
+        if 0 < len(buttons):
+            if 1 < len(buttons):
+                logging.warning('more than one button here. going to use the first one')
+            if buttons[0].text == 'Not now':
+                buttons[0].click()
+            else:
+                logging.error('first button is not Not now. exiting.')
+                self.driver.quit()
+        else:
+            logging.info('No buttons to ignore. I hope we are at the right place.')
+
+    def ignore_turn_on_notifications(self):
+        buttons = self.driver.find_elements(By.TAG_NAME, 'button')
+        not_now_buttons = [but for but in buttons if but.text == 'Not Now']
+        if 0 == len(not_now_buttons):
+            logging.info('No Not Now buttons. Assuming theres no Turn On Notifications Dialogue.')
+            return
+        elif 1 == len(not_now_buttons):
+            logging.debug('Selecting Not Now for Turn on Notifications')
+        else:
+            logging.warning('More than One \'Not Now\' buttons. Using the first one.')
+        not_now_buttons[0].click()
+
+    def next_debug_step(self):
+        print('nothing to do exactly. Just debug/develop activity.')
+
+    def quit(self):
+        logging.info('quitting selenium driver session.')
         self.driver.quit()
 
 
