@@ -2,15 +2,15 @@
 
 import argparse
 import customtkinter
-import logging
+from config import logging
+
 
 import config
 from InstagramBot import InstagramBot
 import ui_app
 import headless_app
 
-def set_logging():
-    logging.basicConfig(level=logging.INFO)
+    
 
 def get_args():
     parser = argparse.ArgumentParser(description="Instagram Bot")
@@ -27,7 +27,6 @@ def get_args():
     return args
 
 def main():
-    set_logging()
     args = get_args()
 
     if args.user_interface:

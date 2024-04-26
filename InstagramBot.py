@@ -1,6 +1,6 @@
 import time
 import json
-import logging
+from config import logging
 #from selenium import webdriver
 import undetected_chromedriver as uc
 from selenium.webdriver.chrome.service import Service

@@ -1,5 +1,6 @@
 import peewee
 import config
+from config import logging
 
 marketing_db = peewee.SqliteDatabase(config.DATABASE_FILE_NAME)
 

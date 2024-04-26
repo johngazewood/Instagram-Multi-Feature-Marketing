@@ -1,6 +1,7 @@
 import customtkinter
 import argparse
 import json
+from config import logging
 
 import InstagramBot
 

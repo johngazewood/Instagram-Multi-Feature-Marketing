@@ -1,7 +1,7 @@
 from typing import List
 import argparse
 import json
-import logging
+from config import logging
 import random
 
 import InstagramBot
