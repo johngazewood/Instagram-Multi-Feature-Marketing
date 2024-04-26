@@ -4,6 +4,7 @@ import argparse
 import customtkinter
 import logging
 
+import config
 from InstagramBot import InstagramBot
 import ui_app
 import headless_app
@@ -18,10 +19,11 @@ def get_args():
     parser.add_argument("-d", "--dm", action="store_true", help="Send direct messages")
     parser.add_argument("-ht", "--hashtag", help="Hashtag to scrape posts from")
     parser.add_argument("-cm", "--message", help="Comment or message to post")
-    parser.add_argument("-del", "--delay", type=int, default=5, help="Delay in seconds between actions")
+    parser.add_argument("-del", "--delay", type=int, default=config.DEFAULT_DELAY_SECONDS, help="Delay in seconds between actions")
     parser.add_argument("-ui", "--user_interface", type=bool, default=False)
     
     args = parser.parse_args()
+    config.DEFAULT_DELAY_SECONDS = args.delay
     return args
 
 def main():
