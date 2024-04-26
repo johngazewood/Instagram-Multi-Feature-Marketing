@@ -12,8 +12,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
+from persist_activity import SavedComment
+import config
+
 
 class InstagramBot:
+    comments_made = 0
+    comments_skipped_because_could_not_find = 0
+
     def __init__(self):
         chrome_options = Options()
         chrome_options.add_argument("--window-size=930,820")
@@ -38,7 +44,7 @@ class InstagramBot:
         password_field.send_keys(Keys.RETURN)
 
         # Wait for the login process to complete (you may need to adjust the delay based on your internet speed)
-        time.sleep(5)  # Wait for 5 seconds (adjust as needed)
+        time.sleep(config.DEFAULT_DELAY_SECONDS)
 
     def scrape_hashtag_posts(self, hashtag):
         # Open Instagram and navigate to the hashtag page
@@ -131,41 +137,57 @@ class InstagramBot:
         self.driver.quit()
 
 
-    def comment_on_posts(self, links, comment, delay_time):
+    def comment_on_posts(self, links, comment, delay_time) -> None:
+        wait = WebDriverWait(self.driver, 30)
         for link in links:
             # Open each post link
-            self.driver.get(link)
-            time.sleep(2)
+            if not self.has_already_been_commented_on(link):
+                self.driver.get(link)
+                time.sleep(2)
 
-            # Find the comment input field
-            comment_input = self.driver.find_element(By.CSS_SELECTOR, 'textarea[aria-label="Add a comment…"]')
-            comment_input.click()
-            time.sleep(1)
+                # Find the comment input field
+                comment_xpath_1 = 'textarea[aria-label="Add a comment…"]'
+                comment_xpath_2 = "//div[@role='button' and .//*[contains(text(), 'Comment')]]"
+                try:
+                    comment_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, comment_xpath_1)))
+                except Exception as e:
+                    logging.warning(f'Exception {e}')
+                    logging.warning('could not find comment element xpath ' + comment_xpath_1 + ' skipping the current post')
+                    self.comments_skipped_because_could_not_find += 1
+                    continue
+                    #try:
+                    #    comment_button = wait.until(EC.presence_of_element_located((By.XPATH, comment_xpath_2)))
+                    #    comment_button.click()
+                    #except Exception as e:
+                    #    logging.error('could not find other comment element xpath ' + comment_xpath_2 + ' skipping the current link')
+                    #    continue
 
-            # Create an instance of ActionChains
-            actions = ActionChains(self.driver)
-            actions.send_keys(comment)
-            actions.send_keys(Keys.RETURN)
-            # Perform the actions
-            actions.perform()
+                comment_input.click()
+                time.sleep(1)
 
-            time.sleep(delay_time)
-        
-        self.driver.quit()
+                # Create an instance of ActionChains
+                actions = ActionChains(self.driver)
+                actions.send_keys(comment)
+                actions.send_keys(Keys.RETURN)
+                # Perform the actions
+                actions.perform()
+                self.comments_made += 1
+                saved_comment = SavedComment(text=comment, hyperlink=link)
+                saved_comment.save()
+
+                time.sleep(delay_time)
+
+    def has_already_been_commented_on(self, link: str):
+        saved_comments : list = SavedComment.select().where(SavedComment.hyperlink == link)
+        already_commnented_on =  len(saved_comments) > 0
+        return already_commnented_on
 
     def ignore_save_your_login_info(self):
-        buttons = self.driver.find_elements(By.XPATH, "//div[@role='button']")
-        if 0 < len(buttons):
-            if 1 < len(buttons):
-                logging.warning('more than one button here. going to use the first one')
-            if buttons[0].text == 'Not now':
-                buttons[0].click()
-            else:
-                logging.error('first button is not Not now. exiting.')
-                self.driver.quit()
-        else:
-            logging.info('No buttons to ignore. I hope we are at the right place.')
-
+        wait = WebDriverWait(self.driver, 30)
+        xpath_string = "//div[@role='button' and contains(text(), 'Not now')]"
+        not_now_button = wait.until(EC.presence_of_element_located((By.XPATH, xpath_string)))
+        not_now_button.click()
+        
     def ignore_turn_on_notifications(self):
         buttons = self.driver.find_elements(By.TAG_NAME, 'button')
         not_now_buttons = [but for but in buttons if but.text == 'Not Now']

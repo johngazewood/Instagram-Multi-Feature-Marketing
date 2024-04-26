@@ -33,6 +33,7 @@ def run(args: argparse.ArgumentParser):
     bot = InstagramBot.InstagramBot()
     logging.info("Logging in to " + credentials['username'])
     bot.login(email=credentials['username'], password=credentials['password'])
+    
     bot.ignore_save_your_login_info()
     # TODO: Verify login
     logging.info('logged in.')
@@ -45,7 +46,8 @@ def run(args: argparse.ArgumentParser):
             comment = random.choice(comments)
             bot.comment_on_posts([link], comment, 5)
 
-    bot.next_debug_step()
+    logging.info(f"total comments made during run {bot.comments_made}")
+    logging.info("total comments skipped because the Comment element could not be found {bot.comments_skipped_because_could_not_find}")
     bot.quit()
 
 

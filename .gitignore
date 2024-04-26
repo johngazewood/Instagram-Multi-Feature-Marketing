@@ -45,3 +45,7 @@ Thumbs.db
 # Compiled executables
 *.exe
 *.out
+
+
+# database
+**/*.db
