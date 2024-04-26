@@ -5,5 +5,17 @@ musician
 diymusic
 rock
 rockmusic
+rockguitar
+rockvocals
 homestudio
 musicstudio
+sierraferrel
+redclaystrays
+theredclaystrays
+waylonjennings
+hankwilliams
+guitar
+countryguitar
+honkytonk
+bluegrass
+bluegrassguitar
