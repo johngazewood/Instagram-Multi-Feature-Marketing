@@ -3,3 +3,7 @@ colterwallmusic
 music
 musician
 diymusic
+rock
+rockmusic
+homestudio
+musicstudio
