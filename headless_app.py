@@ -47,7 +47,7 @@ def run(args: argparse.ArgumentParser):
             bot.comment_on_posts([link], comment, 5)
 
     logging.info(f"total comments made during run {bot.comments_made}")
-    logging.info("total comments skipped because the Comment element could not be found {bot.comments_skipped_because_could_not_find}")
+    logging.info(f"total comments skipped because the Comment element could not be found {bot.comments_skipped_because_could_not_find}")
     bot.quit()
 
 
